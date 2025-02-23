@@ -1,12 +1,12 @@
 const { app, BrowserWindow, session } = require("electron");
 const path = require("path");
-const fs = require("fs");
 
 function createWindow() {
-    const win = new BrowserWindow({
+    const window = new BrowserWindow({
         width: 1280,
         height: 800,
         icon: path.join(__dirname, "icon.png"),
+        //frame: false,
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
@@ -15,9 +15,11 @@ function createWindow() {
         }
     });
 
+    window.setMenu(null)
+
     const userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
-    win.webContents.setUserAgent(userAgent);
+    window.webContents.setUserAgent(userAgent);
 
     session.defaultSession.webRequest.onBeforeSendHeaders((details, callback) => {
         details.requestHeaders["User-Agent"] = userAgent;
@@ -26,25 +28,27 @@ function createWindow() {
         callback({ cancel: false, requestHeaders: details.requestHeaders });
     });
 
-    win.webContents.on("will-navigate", (event, url) => {
+    window.webContents.on("will-navigate", (event, url) => {
         if (!url.startsWith("https://web.snapchat.com") && url.includes("https://snapchat.com") && !url.startsWith("https://accounts.snapchat.com/accounts/v2/login")) {
             event.preventDefault();
-            win.loadURL("https://accounts.snapchat.com/accounts/v2/login");
+            window.loadURL("https://accounts.snapchat.com/accounts/v2/login");
         }
     });
 
-    win.webContents.on("did-navigate", (event, url) => {
+    window.webContents.on("did-navigate", (event, url) => {
         if (!url.startsWith("https://web.snapchat.com") && url.startsWith("https://snapchat.com") && !url.startsWith("https://accounts.snapchat.com/accounts/v2/login")) {
-            win.loadURL("https://accounts.snapchat.com/accounts/v2/login");
+            window.loadURL("https://accounts.snapchat.com/accounts/v2/login");
         }
     });
 
-    win.webContents.setWindowOpenHandler(({ url }) => {
-        win.loadURL(url);
+    window.webContents.setWindowOpenHandler(({ url }) => {
+        window.loadURL(url);
         return { action: "deny" };
     });
 
-    win.loadURL("https://web.snapchat.com/");
+    
+
+    window.loadURL("https://web.snapchat.com/");
 }
 
 app.whenReady().then(createWindow);
