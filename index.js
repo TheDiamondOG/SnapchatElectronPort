@@ -6,12 +6,12 @@ function createWindow() {
         width: 1280,
         height: 800,
         icon: path.join(__dirname, "icon.png"),
-        //frame: false,
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
             enableRemoteModule: false,
-            sandbox: true,
+            sandbox: false,
+            preload: path.join(__dirname, 'preload.js')
         }
     });
 
@@ -29,14 +29,14 @@ function createWindow() {
     });
 
     window.webContents.on("will-navigate", (event, url) => {
-        if (!url.startsWith("https://web.snapchat.com") && url.includes("https://snapchat.com") && !url.startsWith("https://accounts.snapchat.com/accounts/v2/login")) {
+        if (!url.startsWith("https://web.snapchat.com") && url.includes("https://www.snapchat.com") && url.includes("https://snapchat.com") && !url.startsWith("https://accounts.snapchat.com/accounts/v2/login") && url != "https://www.snapchat.com" && url != "https://snapchat.com") {
             event.preventDefault();
             window.loadURL("https://accounts.snapchat.com/accounts/v2/login");
         }
     });
 
     window.webContents.on("did-navigate", (event, url) => {
-        if (!url.startsWith("https://web.snapchat.com") && url.startsWith("https://snapchat.com") && !url.startsWith("https://accounts.snapchat.com/accounts/v2/login")) {
+        if (!url.startsWith("https://web.snapchat.com") && url.includes("https://www.snapchat.com") && url.includes("https://snapchat.com") && !url.startsWith("https://accounts.snapchat.com/accounts/v2/login") && url != "https://www.snapchat.com" && url != "https://snapchat.com") {
             window.loadURL("https://accounts.snapchat.com/accounts/v2/login");
         }
     });
@@ -45,8 +45,6 @@ function createWindow() {
         window.loadURL(url);
         return { action: "deny" };
     });
-
-    
 
     window.loadURL("https://web.snapchat.com/");
 }
